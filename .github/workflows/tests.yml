@@ -17,10 +17,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13'
+          python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install pytest
+        run: pip install pytest pytest-cov
 
-      - name: Run tests
-        run: pytest test_calculator.py -v
+      - name: Run tests with coverage
+        run: pytest test_calculator.py -v --cov=calculator --cov-report=term-missing
+
+      - name: Fail if coverage below 80%
+        run: pytest test_calculator.py --cov=calculator --cov-fail-under=80
