@@ -1,4 +1,4 @@
-name: Run Tests
+name: Run Tests in Docker
 
 on:
   push:
@@ -14,16 +14,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+      - name: Build Docker image
+        run: docker build -t my-pipeline .
 
-      - name: Install dependencies
-        run: pip install pytest pytest-cov
-
-      - name: Run tests with coverage
-        run: pytest test_calculator.py -v --cov=calculator --cov-report=term-missing
-
-      - name: Fail if coverage below 80%
-        run: pytest test_calculator.py --cov=calculator --cov-fail-under=80
+      - name: Run tests inside Docker
+        run: docker run my-pipeline
