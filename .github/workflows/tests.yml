@@ -1,4 +1,4 @@
-name: Run Tests in Docker
+name: CI Pipeline
 
 on:
   push:
@@ -7,8 +7,38 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  quality:
+    name: Code Quality
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install quality tools
+        run: pip install flake8 black isort mypy
+
+      - name: Check formatting (black)
+        run: black --check calculator.py test_calculator.py
+
+      - name: Check import order (isort)
+        run: isort --check-only calculator.py test_calculator.py
+
+      - name: Check code style (flake8)
+        run: flake8 calculator.py test_calculator.py
+
+      - name: Check types (mypy)
+        run: mypy calculator.py
+
+  test:
+    name: Tests + Coverage
+    runs-on: ubuntu-latest
+    needs: quality
 
     steps:
       - name: Checkout code
@@ -19,3 +49,10 @@ jobs:
 
       - name: Run tests inside Docker
         run: docker run my-pipeline
+
+      - name: Enforce coverage threshold
+        run: |
+          docker run my-pipeline pytest test_calculator.py \
+            --cov=calculator \
+            --cov-fail-under=80 \
+            -q
