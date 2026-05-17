@@ -30,3 +30,6 @@ def percentage(part: float, total: float) -> float:
     if total == 0:
         raise ValueError("Total cannot be zero")
     return (part / total) * 100
+
+def even_or_odd(n: int) -> str:
+    return "even" if n % 2 == 0 else "odd"  
